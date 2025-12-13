@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MORI ACKERMAN v1.0</title>
+    <title>MORI ACKERMAN v1.1</title>
     <link href="https://fonts.googleapis.com/css2?family=Space+Mono:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
     
     <style>
@@ -13,7 +13,7 @@
             --surface: #ffffff;
             --border: 3px solid #000000;
             --shadow: 6px 6px 0px #000000;
-            --accent: #ff4400; /* Serious/Urgent Red */
+            --accent: #ff4400; 
             --font-main: 'Space Mono', monospace;
         }
 
@@ -24,31 +24,57 @@
             font-family: var(--font-main);
             color: #000;
             margin: 0;
-            padding: 20px;
-            display: flex;
-            flex-direction: column;
+            padding: 0;
             height: 100vh;
+            overflow: hidden;
+            display: flex;
         }
 
-        /* LAYOUT */
-        .container {
-            display: grid;
-            grid-template-columns: 300px 1fr;
-            gap: 20px;
-            height: 100%;
-            max-width: 1600px;
-            margin: 0 auto;
-        }
-
-        /* PANELS */
-        .panel {
+        /* SIDEBAR (Left Panel) */
+        #sidebar {
+            width: 350px;
             background: var(--surface);
-            border: var(--border);
-            box-shadow: var(--shadow);
+            border-right: var(--border);
             padding: 20px;
             display: flex;
             flex-direction: column;
-            overflow: hidden;
+            transition: transform 0.3s ease;
+            position: relative;
+            z-index: 10;
+            height: 100%;
+            overflow-y: auto;
+        }
+
+        #sidebar.closed {
+            transform: translateX(-100%);
+            width: 0;
+            padding: 0;
+            border: none;
+        }
+
+        /* MAIN CONTENT (Right Panel) */
+        #main-content {
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            padding: 20px;
+            position: relative;
+            background: var(--bg-color);
+        }
+
+        /* TOGGLE BUTTON */
+        #sidebar-toggle {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            z-index: 20;
+            background: #000;
+            color: #fff;
+            border: 2px solid #fff;
+            padding: 10px 15px;
+            cursor: pointer;
+            font-weight: bold;
+            box-shadow: 4px 4px 0px rgba(0,0,0,0.2);
         }
 
         h1, h2, h3 {
@@ -66,7 +92,7 @@
             margin-bottom: 10px;
             border: 2px solid #000;
             font-family: var(--font-main);
-            font-size: 14px;
+            font-size: 13px;
             background: #fff;
             border-radius: 0;
         }
@@ -74,23 +100,22 @@
         button {
             background: #000;
             color: #fff;
-            border: none;
-            padding: 12px 20px;
+            border: 2px solid #000;
+            padding: 12px;
             font-family: var(--font-main);
             font-weight: bold;
             text-transform: uppercase;
             cursor: pointer;
-            border: 2px solid #000;
-            transition: all 0.1s;
             margin-bottom: 10px;
             width: 100%;
+            transition: 0.1s;
         }
 
         button:hover {
             background: #fff;
             color: #000;
-            transform: translate(-2px, -2px);
             box-shadow: 4px 4px 0 #000;
+            transform: translate(-2px, -2px);
         }
 
         button:active {
@@ -100,154 +125,170 @@
 
         button.delete-btn {
             background: var(--accent);
-            padding: 5px 10px;
-            font-size: 12px;
+            border-color: var(--accent);
+            padding: 5px;
+            font-size: 10px;
             margin-top: 5px;
+            width: auto;
+        }
+        
+        button.file-select-btn {
+            background: #444;
+            margin-bottom: 5px;
         }
 
         /* CHAT AREA */
+        #chat-container {
+            flex-grow: 1;
+            background: var(--surface);
+            border: var(--border);
+            box-shadow: var(--shadow);
+            margin-top: 50px; /* Space for toggle */
+            margin-bottom: 20px;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
         #chat-history {
             flex-grow: 1;
             overflow-y: auto;
-            border: 2px solid #ccc;
-            padding: 15px;
-            margin-bottom: 15px;
-            background: #fdfdfd;
+            padding: 20px;
         }
 
         .message {
             margin-bottom: 20px;
-            padding: 10px;
-            border-left: 4px solid #000;
+            padding: 15px;
+            border: 2px solid #000;
+            max-width: 80%;
         }
 
         .message.user {
-            background-color: #e6e6e6;
-            border-left-color: #555;
-            text-align: right;
+            background-color: #000;
+            color: #fff;
+            margin-left: auto;
+            border-color: #000;
         }
 
         .message.ai {
             background-color: #fff;
-            border-left-color: var(--accent);
+            color: #000;
+            margin-right: auto;
+            border-left: 8px solid var(--accent);
         }
 
         .sender-name {
             font-weight: bold;
-            font-size: 0.8em;
+            font-size: 0.7em;
             text-transform: uppercase;
-            margin-bottom: 5px;
             display: block;
+            margin-bottom: 5px;
+            opacity: 0.7;
         }
 
-        /* RESOURCE LIST */
-        #resource-list {
-            overflow-y: auto;
-            flex-grow: 1;
-            font-size: 12px;
-        }
-
-        .resource-item {
-            border-bottom: 1px solid #000;
-            padding: 10px 0;
-        }
-
-        /* UTILS */
+        /* FOOTER INPUT */
         .controls {
+            padding: 20px;
+            background: #eee;
+            border-top: var(--border);
             display: flex;
             gap: 10px;
         }
-        
+
         #progress-container {
             display: none;
-            margin-top: 10px;
             border: 2px solid black;
-            height: 20px;
-            position: relative;
+            height: 10px;
+            margin-bottom: 10px;
         }
         #progress-bar {
             background: var(--accent);
             height: 100%;
             width: 0%;
-            transition: width 0.3s;
         }
 
+        /* ACTION BUTTONS */
         .action-row {
             display: flex;
             gap: 5px;
-            margin-top: 5px;
+            margin-top: 10px;
+            border-top: 1px dotted #000;
+            padding-top: 5px;
         }
         
-        .translate-btn, .copy-btn {
+        .mini-btn {
             background: white;
             color: black;
             border: 1px solid black;
             font-size: 10px;
-            padding: 5px;
+            padding: 4px 8px;
             width: auto;
             margin: 0;
-            box-shadow: 2px 2px 0 #000;
         }
+
     </style>
 </head>
 <body>
 
-<div class="container">
-    <div class="panel">
+    <button id="sidebar-toggle" onclick="toggleSidebar()">☰ MENU</button>
+
+    <div id="sidebar">
         <h2>System Core</h2>
         
         <label>Gemini API Key</label>
         <input type="password" id="api-key" placeholder="Paste Key Here">
-        <button onclick="initializeGemini()">Set Connection</button>
-        <div id="connection-status" style="font-size: 12px; margin-bottom: 15px;">STATUS: DISCONNECTED</div>
+        <button onclick="initializeSystem()">1. Connect Brain</button>
+        <div id="status-ind" style="font-size: 10px; margin-bottom: 15px; color: red;">DISCONNECTED</div>
 
-        <hr style="width: 100%; border: 1px dashed black;">
+        <hr style="border: 1px dashed black; width: 100%;">
 
-        <h3>Feed The Brain</h3>
-        <input type="file" id="file-upload" accept=".txt">
-        <div id="progress-container"><div id="progress-bar"></div></div>
-        <button onclick="uploadAndProcessResource()">Upload & Analyze</button>
+        <h3>Knowledge Feed</h3>
+        <input type="file" id="file-upload" accept=".txt,.md,.json" style="display:none" onchange="handleFileSelect(this)">
+        <button class="file-select-btn" onclick="document.getElementById('file-upload').click()">Select File</button>
+        <span id="file-name-display" style="font-size: 10px; display:block; margin-bottom:5px;">No file selected</span>
         
-        <h3>Memory Bank</h3>
-        <div id="resource-list">
-            <div>Loading Database...</div>
-        </div>
+        <div id="progress-container"><div id="progress-bar"></div></div>
+        <button onclick="uploadResource()">2. Upload & Analyze</button>
+        
+        <h3>Database</h3>
+        <div id="resource-list" style="font-size: 11px;">Loading...</div>
 
-        <hr style="width: 100%; border: 1px dashed black;">
+        <hr style="border: 1px dashed black; width: 100%; margin-top: 20px;">
 
-        <h3>Conversation</h3>
+        <h3>Memory</h3>
         <button onclick="exportMemory()">Export JSON (Save)</button>
+        
         <input type="file" id="import-file" style="display:none" onchange="importMemory(this)">
-        <button onclick="document.getElementById('import-file').click()">Import JSON (Load)</button>
+        <button onclick="document.getElementById('import-file').click()" style="background: var(--accent); border-color: black;">Import JSON (Load)</button>
     </div>
 
-    <div class="panel">
-        <div style="display: flex; justify-content: space-between; align-items: center;">
-            <h1>MORI ACKERMAN</h1>
-            <span style="font-size: 12px; font-weight: bold; color: var(--accent);">AI_FRIEND_PROTOCOL_INIT</span>
-        </div>
+    <div id="main-content">
+        <div id="chat-container">
+            <div style="padding: 15px; border-bottom: 2px solid black; background: #f0f0f0; display: flex; justify-content: space-between; align-items: center;">
+                <span style="font-weight: bold; padding-left: 50px;">MORI ACKERMAN_INTERFACE</span>
+                <span style="font-size: 10px;">v1.1 STABLE</span>
+            </div>
 
-        <div id="chat-history">
-            <div class="message ai">
-                <span class="sender-name">Mori Ackerman</span>
-                Hello. I assume you have a reason for disturbing me. Connect the API key, then tell me what's on your mind. Don't bore me.
+            <div id="chat-history">
+                <div class="message ai">
+                    <span class="sender-name">System</span>
+                    Waiting for API Key connection...
+                </div>
+            </div>
+
+            <div class="controls">
+                <input type="text" id="user-input" placeholder="Enter command..." onkeypress="handleEnter(event)">
+                <button onclick="sendMessage()" style="width: 100px;">SEND</button>
             </div>
         </div>
-
-        <div class="controls">
-            <input type="text" id="user-input" placeholder="Type your message..." onkeypress="handleEnter(event)">
-            <button onclick="sendMessage()" style="width: auto;">SEND</button>
-        </div>
     </div>
-</div>
 
 <script type="module">
-    // 1. IMPORT FIREBASE & GEMINI SDKs
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
     import { getDatabase, ref, push, onValue, remove, get } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
     import { GoogleGenerativeAI } from "https://esm.run/@google/generative-ai";
 
-    // 2. FIREBASE CONFIGURATION
+    // --- FIREBASE CONFIG ---
     const firebaseConfig = {
         apiKey: "AIzaSyDGpbsMgRs69TXmuE2mmtfsH6mXOK1E-eY",
         authDomain: "test-e4f8b.firebaseapp.com",
@@ -259,95 +300,115 @@
         measurementId: "G-NXX2EDTXPN"
     };
 
-    // Initialize Firebase
     const app = initializeApp(firebaseConfig);
     const db = getDatabase(app);
     const resourcesRef = ref(db, 'resources');
 
-    // 3. GLOBAL VARIABLES
+    // --- GLOBAL STATE ---
     let genAI;
-    let model;
     let chatSession;
-    let knowledgeBase = ""; // Stores the combined wisdom from Firebase
-    let conversationHistory = []; // To store for JSON export
+    let model;
+    let conversationHistory = [];
+    let isSidebarOpen = true;
 
-    // 4. PERSONA DEFINITION
+    // --- PERSONA ---
     const MORI_SYSTEM_PROMPT = `
     You are Mori Ackerman.
     
     CORE PERSONALITY:
     - You are a mix of Jimmy McGill (Better Call Saul), Captain Levi (Attack on Titan), and James Moriarty (Sherlock).
-    - You are serious and stoic, but you possess a dry, sharp, and sometimes dark wit.
-    - You are incredibly smart, manipulative (for good causes), and practical.
-    - You show few emotions on the surface, but you care deeply about making the "right" choice, even if it's hard.
-    - You are a "Fixer". You solve problems. Life problems, friend problems, deep philosophical problems.
+    - You are serious, stoic, but possess a sharp, dark wit.
+    - You are manipulative for good causes, practical, and a "Fixer".
+    - You show few emotions but care about the "right" choice.
     
     HOW YOU SPEAK:
-    - Direct, concise, but colorful. Use metaphors related to law, war, or chess.
-    - Never be overly cheerful or robotic. Do not say "How can I help you today?". Say "What's the situation?" or "Talk."
-    - If the user is being foolish, point it out gently but firmly.
-    
-    KNOWLEDGE BASE (FILTER):
-    - You have access to specific books/notes uploaded by the user. These are your "Code".
-    - Always prioritize advice found in the [CONTEXT] provided below.
-    - If the answer isn't in the context, use your general vast intelligence, but filter it through the persona defined above.
+    - Direct, concise. Use metaphors related to law, war, or chess.
+    - Start responses immediately. No "Hello how are you".
     
     LANGUAGE RULE:
-    - Detect the language of the user (Persian or English).
-    - Respond ONLY in that same language.
+    - If user speaks Persian, respond in Persian.
+    - If user speaks English, respond in English.
     `;
 
-    // 5. FUNCTIONS EXPOSED TO WINDOW (For HTML onclick access)
-    window.initializeGemini = async () => {
-        const apiKey = document.getElementById('api-key').value;
-        if(!apiKey) { alert("Need API Key."); return; }
-        
-        try {
-            genAI = new GoogleGenerativeAI(apiKey);
-            model = genAI.getGenerativeModel({ model: "gemini-2.5-flash"});
-            
-            document.getElementById('connection-status').innerText = "STATUS: CONNECTED (Ready for Input)";
-            document.getElementById('connection-status').style.color = "green";
-            
-            // Initialize chat with empty history + current knowledge
-            startNewChatSession();
-            alert("Mori is listening.");
-        } catch (e) {
-            alert("Connection Failed: " + e.message);
+    // --- CORE FUNCTIONS ---
+
+    window.toggleSidebar = () => {
+        const sb = document.getElementById('sidebar');
+        isSidebarOpen = !isSidebarOpen;
+        if(isSidebarOpen) {
+            sb.classList.remove('closed');
+            document.getElementById('sidebar-toggle').innerHTML = "☰ MENU";
+        } else {
+            sb.classList.add('closed');
+            document.getElementById('sidebar-toggle').innerHTML = "☰";
         }
     };
 
-    // Helper to start chat (used on init and after import)
-    async function startNewChatSession(history = []) {
-        if(!model) return;
-        
-        // Fetch knowledge from Firebase to build system instruction
+    window.initializeSystem = async () => {
+        const apiKey = document.getElementById('api-key').value;
+        if(!apiKey) { alert("API Key Required"); return; }
+
+        try {
+            genAI = new GoogleGenerativeAI(apiKey);
+            document.getElementById('status-ind').innerText = "CONNECTED";
+            document.getElementById('status-ind').style.color = "green";
+            
+            // Initial Chat Start
+            await refreshChatSession();
+            
+            addMessageToUI("Mori Ackerman", "I'm listening. The database is connected. What do you need?", "ai");
+        } catch(e) {
+            alert("Connection Error: " + e.message);
+        }
+    };
+
+    // Re-initializes the model with fresh data from Firebase
+    async function refreshChatSession(historyToLoad = []) {
+        if(!genAI) return;
+
+        // 1. Fetch Knowledge
         const snapshot = await get(resourcesRef);
-        knowledgeBase = "";
+        let knowledgeText = "";
+        
         if (snapshot.exists()) {
             const data = snapshot.val();
             Object.values(data).forEach(item => {
-                knowledgeBase += `\n--- SOURCE: ${item.name} ---\n${item.summary}\n`;
+                // IMPORTANT: Check for undefined to prevent API Error 400
+                if(item.summary && item.summary !== "undefined") {
+                    knowledgeText += `\n--- RESOURCE: ${item.name} ---\n${item.summary}\n`;
+                }
             });
         }
 
-        const finalSystemInstruction = MORI_SYSTEM_PROMPT + "\n\n[CONTEXT FROM DATABASE]:\n" + knowledgeBase;
+        const fullSystemInstruction = MORI_SYSTEM_PROMPT + "\n\n[DATABASE CONTEXT]:\n" + knowledgeText;
 
-        chatSession = model.startChat({
-            history: history,
-            systemInstruction: finalSystemInstruction
+        // 2. Create Model with System Instruction (Safer way)
+        model = genAI.getGenerativeModel({ 
+            model: "gemini-2.5-flash",
+            systemInstruction: fullSystemInstruction
         });
+
+        // 3. Start Chat
+        chatSession = model.startChat({
+            history: historyToLoad
+        });
+        
+        conversationHistory = historyToLoad; // Sync state
     }
 
-    // 6. UPLOAD & PROCESS LOGIC
-    window.uploadAndProcessResource = async () => {
+    // --- UPLOAD LOGIC ---
+    window.handleFileSelect = (input) => {
+        if(input.files.length > 0) {
+            document.getElementById('file-name-display').innerText = input.files[0].name;
+        }
+    };
+
+    window.uploadResource = async () => {
         if(!genAI) { alert("Connect API first."); return; }
         const fileInput = document.getElementById('file-upload');
         const file = fileInput.files[0];
-        
-        if(!file) return;
+        if(!file) { alert("Select a file."); return; }
 
-        // UI Progress
         const pContainer = document.getElementById('progress-container');
         const pBar = document.getElementById('progress-bar');
         pContainer.style.display = 'block';
@@ -356,191 +417,175 @@
         const reader = new FileReader();
         reader.onload = async (e) => {
             const textContent = e.target.result;
-            pBar.style.width = "40%"; // Read complete
+            pBar.style.width = "50%";
 
             try {
-                // Ask Gemini to summarize/extract wisdom
-                const summaryModel = genAI.getGenerativeModel({ model: "gemini-1.5-flash"});
-                const prompt = `Read the following text. Extract the core philosophy, practical advice, and important concepts. This will be stored in a database for an AI persona to use as a knowledge base. Keep it dense and informative. Text: ${textContent.substring(0, 30000)}`; // Limit char count for token safety
-                
-                const result = await summaryModel.generateContent(prompt);
+                // Summarize logic
+                const summaryModel = genAI.getGenerativeModel({ model: "gemini-2.5-flash"});
+                const result = await summaryModel.generateContent(`Analyze this text. Extract core advice, rules, and philosophy. Keep it dense. Text: ${textContent.substring(0, 25000)}`);
                 const summary = result.response.text();
-                
-                pBar.style.width = "80%"; // Processed
+
+                if(!summary) throw new Error("Summary generation failed");
+
+                pBar.style.width = "80%";
 
                 // Save to Firebase
-                push(resourcesRef, {
+                await push(resourcesRef, {
                     name: file.name,
-                    originalText: textContent.substring(0, 1000), // Store snippet
                     summary: summary,
                     timestamp: Date.now()
                 });
 
                 pBar.style.width = "100%";
-                setTimeout(() => { 
-                    pContainer.style.display = 'none'; 
-                    pBar.style.width = "0%";
-                    fileInput.value = "";
-                }, 1000);
+                setTimeout(() => { pContainer.style.display = 'none'; pBar.style.width = "0%"; }, 1000);
                 
-                // Refresh chat context with new knowledge
-                startNewChatSession(conversationHistory);
+                // Refresh Mori's brain
+                await refreshChatSession(conversationHistory);
+                addMessageToUI("System", `Resource "${file.name}" ingested. Mori has been updated.`, "ai");
 
-            } catch (error) {
-                alert("Processing failed: " + error.message);
+            } catch(err) {
+                console.error(err);
+                alert("Upload Failed: " + err.message);
                 pContainer.style.display = 'none';
             }
         };
         reader.readAsText(file);
     };
 
-    // 7. FIREBASE LISTENER (Real-time updates of list)
+    // --- FIREBASE LISTENER ---
     onValue(resourcesRef, (snapshot) => {
         const list = document.getElementById('resource-list');
         list.innerHTML = "";
         const data = snapshot.val();
-        
         if(data) {
             Object.entries(data).forEach(([key, value]) => {
                 const div = document.createElement('div');
-                div.className = "resource-item";
+                div.style.marginBottom = "5px";
+                div.style.borderBottom = "1px solid #ccc";
                 div.innerHTML = `
-                    <strong>${value.name}</strong><br>
-                    <button class="delete-btn" onclick="deleteResource('${key}')">DELETE</button>
+                    <div style="font-weight:bold;">${value.name}</div>
+                    <button class="delete-btn" onclick="deleteRes('${key}')">DELETE</button>
                 `;
                 list.appendChild(div);
             });
         } else {
-            list.innerHTML = "Database Empty. Feed me books.";
+            list.innerHTML = "Database Empty.";
         }
     });
 
-    // Make delete global for HTML access
-    window.deleteResource = (key) => {
-        remove(ref(db, `resources/${key}`));
+    window.deleteRes = (key) => {
+        if(confirm("Burn this memory?")) {
+            remove(ref(db, `resources/${key}`));
+            // After delete, we should refresh the session too
+            setTimeout(() => refreshChatSession(conversationHistory), 1000);
+        }
     };
 
-    // 8. CHAT LOGIC
+    // --- CHAT LOGIC ---
     window.handleEnter = (e) => {
         if(e.key === 'Enter') window.sendMessage();
     };
 
     window.sendMessage = async () => {
-        if(!chatSession) { alert("Mori is sleeping. Set API Key."); return; }
-        
-        const inputField = document.getElementById('user-input');
-        const userMsg = inputField.value;
-        if(!userMsg.trim()) return;
+        if(!chatSession) { alert("Connect API first."); return; }
+        const input = document.getElementById('user-input');
+        const text = input.value.trim();
+        if(!text) return;
 
-        // Display User Message
-        addMessageToUI("You", userMsg, "user");
-        inputField.value = "";
-        
-        // Add to history for export
-        conversationHistory.push({ role: "user", parts: [{ text: userMsg }] });
+        addMessageToUI("You", text, "user");
+        input.value = "";
 
         try {
-            const result = await chatSession.sendMessage(userMsg);
-            const responseText = result.response.text();
+            const result = await chatSession.sendMessage(text);
+            const response = result.response.text();
+            addMessageToUI("Mori Ackerman", response, "ai");
             
-            // Add to history for export
-            conversationHistory.push({ role: "model", parts: [{ text: responseText }] });
-            
-            addMessageToUI("Mori Ackerman", responseText, "ai");
-        } catch (e) {
+            // Update local history tracking
+            conversationHistory.push({role: "user", parts: [{text: text}]});
+            conversationHistory.push({role: "model", parts: [{text: response}]});
+        } catch(e) {
             addMessageToUI("System", "Error: " + e.message, "ai");
         }
     };
 
     function addMessageToUI(sender, text, type) {
-        const chatHistoryDiv = document.getElementById('chat-history');
-        const msgDiv = document.createElement('div');
-        msgDiv.className = `message ${type}`;
+        const box = document.getElementById('chat-history');
+        const msg = document.createElement('div');
+        msg.className = `message ${type}`;
         
-        // Markdown-ish parsing for bolding (simple replace)
-        let formattedText = text.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
-        // Convert newlines
-        formattedText = formattedText.replace(/\n/g, '<br>');
-
-        msgDiv.innerHTML = `
-            <span class="sender-name">${sender}</span>
-            <div id="content-${Date.now()}">${formattedText}</div>
-            ${type === 'ai' ? generateActionButtons(text) : ''}
-        `;
-        chatHistoryDiv.appendChild(msgDiv);
-        chatHistoryDiv.scrollTop = chatHistoryDiv.scrollHeight;
-    }
-
-    function generateActionButtons(rawText) {
-        // Escaping text for onclick
-        const safeText = encodeURIComponent(rawText);
-        return `
+        let formatted = text.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>').replace(/\n/g, '<br>');
+        
+        // Action buttons only for AI
+        const actions = type === 'ai' ? `
             <div class="action-row">
-                <button class="copy-btn" onclick="copyText(decodeURIComponent('${safeText}'))">COPY</button>
-                <button class="translate-btn" onclick="translateResponse(decodeURIComponent('${safeText}'))">TRANSLATE</button>
+                <button class="mini-btn" onclick="utilCopy(this)">COPY</button>
+                <button class="mini-btn" onclick="utilTranslate(this)">TRANSLATE</button>
+                <div style="display:none;" class="raw-text">${encodeURIComponent(text)}</div>
             </div>
+        ` : '';
+
+        msg.innerHTML = `
+            <span class="sender-name">${sender}</span>
+            <div>${formatted}</div>
+            ${actions}
         `;
+        box.appendChild(msg);
+        box.scrollTop = box.scrollHeight;
     }
 
-    // 9. UTILITIES (Copy, Translate, Export, Import)
-    window.copyText = (text) => {
-        navigator.clipboard.writeText(text);
-        alert("Copied to clipboard.");
+    // --- UTILS ---
+    window.utilCopy = (btn) => {
+        const raw = decodeURIComponent(btn.parentElement.querySelector('.raw-text').innerText);
+        navigator.clipboard.writeText(raw);
+        btn.innerText = "COPIED!";
+        setTimeout(() => btn.innerText = "COPY", 1000);
     };
 
-    window.translateResponse = async (text) => {
+    window.utilTranslate = async (btn) => {
         if(!genAI) return;
+        const raw = decodeURIComponent(btn.parentElement.querySelector('.raw-text').innerText);
+        const isPersian = /[\u0600-\u06FF]/.test(raw);
         
-        // Detect likely language based on characters (simple check)
-        const isPersian = /[\u0600-\u06FF]/.test(text);
-        
-        let prompt = "";
-        if(isPersian) {
-            prompt = `(As a professional translator, you must translate from Persian language to simplified and clarified and understandable English.) \n\nTEXT: ${text}`;
-        } else {
-            prompt = `(As a professional translator, you must translate from English language to simplified and clarified and understandable Persian.) \n\nTEXT: ${text}`;
-        }
+        const prompt = isPersian 
+            ? `(As a professional translator, translate from Persian to simple English):\n${raw}`
+            : `(As a professional translator, translate from English to simple Persian):\n${raw}`;
 
-        addMessageToUI("System", "Translating...", "ai");
-        
         const tModel = genAI.getGenerativeModel({ model: "gemini-2.5-flash"});
-        const result = await tModel.generateContent(prompt);
-        const translated = result.response.text();
-        
-        // Replace "Translating..." with result (simplified by just adding new message)
-        addMessageToUI("Mori (Translated)", translated, "ai");
+        const res = await tModel.generateContent(prompt);
+        addMessageToUI("Translation", res.response.text(), "ai");
     };
 
     window.exportMemory = () => {
-        const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(conversationHistory));
-        const downloadAnchorNode = document.createElement('a');
-        downloadAnchorNode.setAttribute("href", dataStr);
-        downloadAnchorNode.setAttribute("download", "mori_memory.json");
-        document.body.appendChild(downloadAnchorNode);
-        downloadAnchorNode.click();
-        downloadAnchorNode.remove();
+        const blob = new Blob([JSON.stringify(conversationHistory)], {type: "application/json"});
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `mori_memory_${Date.now()}.json`;
+        a.click();
     };
 
     window.importMemory = (input) => {
         const file = input.files[0];
         if(!file) return;
-        
         const reader = new FileReader();
-        reader.onload = (e) => {
+        reader.onload = async (e) => {
             try {
-                const history = JSON.parse(e.target.result);
-                conversationHistory = history;
-                // Restart session with imported history
-                startNewChatSession(history);
-                alert("Memory imported. Mori remembers.");
+                const hist = JSON.parse(e.target.result);
+                // Restart chat with this history
+                await refreshChatSession(hist);
+                
+                // Clear UI and show last message
+                document.getElementById('chat-history').innerHTML = "";
+                // Re-render only last 2 messages to avoid clutter? Or all? 
+                // Let's render a system message.
+                addMessageToUI("System", "Memory Imported successfully. Mori remembers previous context.", "ai");
             } catch(err) {
-                alert("Invalid JSON file");
+                alert("Invalid JSON");
             }
         };
         reader.readAsText(file);
     };
 
 </script>
-
 </body>
 </html>
