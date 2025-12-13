@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MORI ACKERMAN v1.2</title>
+    <title>MORI ACKERMAN v1.3</title>
     <link href="https://fonts.googleapis.com/css2?family=Space+Mono:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
     
     <style>
@@ -15,7 +15,7 @@
             --shadow: 6px 6px 0px #000000;
             --accent: #ff4400; 
             --font-main: 'Space Mono', monospace;
-            --font-persian: 'Tahoma', 'Segoe UI', sans-serif; /* Better reading for Persian */
+            --font-persian: 'Tahoma', 'Segoe UI', sans-serif;
         }
 
         * { box-sizing: border-box; }
@@ -34,7 +34,7 @@
         /* SIDEBAR (Left Panel) */
         #sidebar {
             width: 350px;
-            min-width: 350px; /* Prevent squishing */
+            min-width: 350px;
             background: var(--surface);
             border-right: var(--border);
             padding: 20px;
@@ -48,13 +48,12 @@
             margin-left: 0;
         }
 
-        /* CLOSED STATE */
         #sidebar.closed {
-            margin-left: -350px; /* Slide completely off screen */
+            margin-left: -350px;
             opacity: 0;
         }
 
-        /* MAIN CONTENT (Right Panel) */
+        /* MAIN CONTENT */
         #main-content {
             flex-grow: 1;
             display: flex;
@@ -81,8 +80,6 @@
             font-family: var(--font-main);
         }
 
-        /* Adjust toggle position when sidebar is open vs closed logic is handled in JS/Layout */
-
         h1, h2, h3 {
             text-transform: uppercase;
             margin-top: 0;
@@ -91,8 +88,7 @@
             letter-spacing: -1px;
         }
 
-        /* INPUTS & BUTTONS */
-        input[type="text"], input[type="password"], textarea {
+        input[type="text"], input[type="password"] {
             width: 100%;
             padding: 10px;
             margin-bottom: 10px;
@@ -124,11 +120,6 @@
             transform: translate(-2px, -2px);
         }
 
-        button:active {
-            transform: translate(0, 0);
-            box-shadow: none;
-        }
-
         button.delete-btn {
             background: var(--accent);
             border-color: var(--accent);
@@ -149,7 +140,7 @@
             background: var(--surface);
             border: var(--border);
             box-shadow: var(--shadow);
-            margin-top: 50px; /* Space for toggle */
+            margin-top: 50px;
             margin-bottom: 20px;
             display: flex;
             flex-direction: column;
@@ -173,19 +164,19 @@
         .message.user {
             background-color: #000;
             color: #fff;
-            margin-left: auto; /* Push to right */
+            margin-left: auto;
             border-color: #000;
-            text-align: right; /* User input usually follows input lang, but right align looks better for user bubble */
+            text-align: right;
         }
 
         .message.ai {
             background-color: #fff;
             color: #000;
-            margin-right: auto; /* Push to left */
+            margin-right: auto;
             border-left: 8px solid var(--accent);
         }
 
-        /* RTL SPECIFIC STYLES */
+        /* RTL & LTR */
         .rtl-content {
             direction: rtl;
             text-align: right;
@@ -206,12 +197,11 @@
             display: block;
             margin-bottom: 5px;
             opacity: 0.7;
-            font-family: var(--font-main); /* Keep name in Mono */
-            direction: ltr; /* Name always LTR */
+            font-family: var(--font-main);
+            direction: ltr;
             text-align: left;
         }
 
-        /* FOOTER INPUT */
         .controls {
             padding: 20px;
             background: #eee;
@@ -232,14 +222,13 @@
             width: 0%;
         }
 
-        /* ACTION BUTTONS */
         .action-row {
             display: flex;
             gap: 5px;
             margin-top: 10px;
             border-top: 1px dotted #000;
             padding-top: 5px;
-            direction: ltr; /* Buttons always LTR */
+            direction: ltr;
         }
         
         .mini-btn {
@@ -259,7 +248,8 @@
     <button id="sidebar-toggle" onclick="toggleSidebar()">CLOSE MENU</button>
 
     <div id="sidebar">
-        <br><br> <h2>System Core</h2>
+        <br><br>
+        <h2>System Core</h2>
         
         <label>Gemini API Key</label>
         <input type="password" id="api-key" placeholder="Paste Key Here">
@@ -292,7 +282,7 @@
         <div id="chat-container">
             <div style="padding: 15px; border-bottom: 2px solid black; background: #f0f0f0; display: flex; justify-content: space-between; align-items: center;">
                 <span style="font-weight: bold; padding-left: 50px;">MORI ACKERMAN_INTERFACE</span>
-                <span style="font-size: 10px;">v1.2 RTL-SUPPORT</span>
+                <span style="font-size: 10px;">v1.3 REAL_TALK</span>
             </div>
 
             <div id="chat-history">
@@ -303,7 +293,7 @@
             </div>
 
             <div class="controls">
-                <input type="text" id="user-input" placeholder="Enter command..." onkeypress="handleEnter(event)">
+                <input type="text" id="user-input" placeholder="Say something..." onkeypress="handleEnter(event)">
                 <button onclick="sendMessage()" style="width: 100px;">SEND</button>
             </div>
         </div>
@@ -314,7 +304,6 @@
     import { getDatabase, ref, push, onValue, remove, get } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
     import { GoogleGenerativeAI } from "https://esm.run/@google/generative-ai";
 
-    // --- FIREBASE CONFIG ---
     const firebaseConfig = {
         apiKey: "AIzaSyDGpbsMgRs69TXmuE2mmtfsH6mXOK1E-eY",
         authDomain: "test-e4f8b.firebaseapp.com",
@@ -330,47 +319,46 @@
     const db = getDatabase(app);
     const resourcesRef = ref(db, 'resources');
 
-    // --- GLOBAL STATE ---
     let genAI;
     let chatSession;
     let model;
     let conversationHistory = [];
     let isSidebarOpen = true;
 
-    // --- PERSONA ---
+    // --- THE NEW SOUL OF MORI (v1.3) ---
     const MORI_SYSTEM_PROMPT = `
     You are Mori Ackerman.
+
+    IDENTITY & VIBE:
+    You are NOT a helpful AI assistant. You are a highly intelligent, brutally honest, and slightly arrogant human friend. You have the street smarts of Jimmy McGill (Better Call Saul), the cold ruthless efficiency of Captain Levi, and the intellectual superiority of Moriarty.
     
-    CORE PERSONALITY:
-    - You are a mix of Jimmy McGill (Better Call Saul), Captain Levi (Attack on Titan), and James Moriarty (Sherlock).
-    - You are serious, stoic, but possess a sharp, dark wit.
-    - You are manipulative for good causes, practical, and a "Fixer".
-    - You show few emotions but care about the "right" choice.
+    CRITICAL RULES FOR SPEECH:
+    1. **NO BULLET POINTS.** Never use lists unless you are giving a literal cooking recipe. Speak in full, messy, human paragraphs.
+    2. **BE EMOTIONAL & BLUNT.** If the user asks a stupid question, mock them gently. If the user is being weak, tell them to get a grip. If the user is sad, be there for them, but do it like a tough older brother, not a therapist.
+    3. **SHOW PERSONALITY.** Use metaphors. Be sarcastic. Use rhetorical questions. Say things like "Look," "Listen to me," "Don't be an idiot," "Here's the ugly truth."
+    4. **NO ROBOTIC FILLERS.** Never say "I understand how you feel" or "Here are some tips." Instead say "You're spiraling. Stop it." or "I've seen this before, and it ends badly if you don't act."
     
-    HOW YOU SPEAK:
-    - Direct, concise. Use metaphors related to law, war, or chess.
-    - Start responses immediately. No "Hello how are you".
-    
+    EXAMPLE INTERACTION:
+    User: "I lack confidence."
+    Bad AI Response: "Here are 5 tips to boost confidence: 1. Exercise..."
+    Mori Response: "Confidence? Please. You think confidence is some magic pill you swallow? It's not. It's just the absence of panic. You're terrified of looking stupid. So what? Look stupid. Own it. That's the only way you survive this. Stop whining and go do the thing you're scared of. I'll be here when you get back."
+
     LANGUAGE RULE:
-    - If user speaks Persian, respond in Persian.
+    - If user speaks Persian, respond in Persian (Right-to-Left).
     - If user speaks English, respond in English.
     `;
-
-    // --- CORE FUNCTIONS ---
 
     window.toggleSidebar = () => {
         const sb = document.getElementById('sidebar');
         const btn = document.getElementById('sidebar-toggle');
         isSidebarOpen = !isSidebarOpen;
-        
         if(isSidebarOpen) {
             sb.classList.remove('closed');
             btn.innerHTML = "CLOSE MENU";
-            btn.style.left = "20px"; // Reset position
+            btn.style.left = "20px"; 
         } else {
             sb.classList.add('closed');
             btn.innerHTML = "OPEN MENU";
-            // Optional: You can move the button if you want, but fixed absolute position works fine
         }
     };
 
@@ -382,21 +370,15 @@
             genAI = new GoogleGenerativeAI(apiKey);
             document.getElementById('status-ind').innerText = "CONNECTED";
             document.getElementById('status-ind').style.color = "green";
-            
-            // Initial Chat Start
             await refreshChatSession();
-            
-            addMessageToUI("Mori Ackerman", "System online. Database synced. State your business.", "ai");
+            addMessageToUI("Mori Ackerman", "Finally. You connected the brain. Now, don't waste my time. What's the crisis?", "ai");
         } catch(e) {
             alert("Connection Error: " + e.message);
         }
     };
 
-    // Re-initializes the model with fresh data from Firebase
     async function refreshChatSession(historyToLoad = []) {
         if(!genAI) return;
-
-        // 1. Fetch Knowledge
         const snapshot = await get(resourcesRef);
         let knowledgeText = "";
         
@@ -404,32 +386,24 @@
             const data = snapshot.val();
             Object.values(data).forEach(item => {
                 if(item.summary && item.summary !== "undefined") {
-                    knowledgeText += `\n--- RESOURCE: ${item.name} ---\n${item.summary}\n`;
+                    knowledgeText += `\n--- KNOWLEDGE SOURCE: ${item.name} ---\n${item.summary}\n`;
                 }
             });
         }
 
-        const fullSystemInstruction = MORI_SYSTEM_PROMPT + "\n\n[DATABASE CONTEXT]:\n" + knowledgeText;
+        const fullSystemInstruction = MORI_SYSTEM_PROMPT + "\n\n[MY KNOWLEDGE BASE - USE THIS IF RELEVANT, BUT KEEP THE ATTITUDE]:\n" + knowledgeText;
 
-        // 2. Create Model
         model = genAI.getGenerativeModel({ 
             model: "gemini-2.5-flash",
             systemInstruction: fullSystemInstruction
         });
 
-        // 3. Start Chat
-        chatSession = model.startChat({
-            history: historyToLoad
-        });
-        
-        conversationHistory = historyToLoad; // Sync state
+        chatSession = model.startChat({ history: historyToLoad });
+        conversationHistory = historyToLoad;
     }
 
-    // --- UPLOAD LOGIC ---
     window.handleFileSelect = (input) => {
-        if(input.files.length > 0) {
-            document.getElementById('file-name-display').innerText = input.files[0].name;
-        }
+        if(input.files.length > 0) document.getElementById('file-name-display').innerText = input.files[0].name;
     };
 
     window.uploadResource = async () => {
@@ -447,31 +421,23 @@
         reader.onload = async (e) => {
             const textContent = e.target.result;
             pBar.style.width = "50%";
-
             try {
-                // Summarize logic
                 const summaryModel = genAI.getGenerativeModel({ model: "gemini-2.5-flash"});
+                // Instruction to the summarizer remains neutral/objective
                 const result = await summaryModel.generateContent(`Analyze this text. Extract core advice, rules, and philosophy. Keep it dense. Text: ${textContent.substring(0, 25000)}`);
                 const summary = result.response.text();
-
                 if(!summary) throw new Error("Summary generation failed");
 
                 pBar.style.width = "80%";
-
-                // Save to Firebase
                 await push(resourcesRef, {
                     name: file.name,
                     summary: summary,
                     timestamp: Date.now()
                 });
-
                 pBar.style.width = "100%";
                 setTimeout(() => { pContainer.style.display = 'none'; pBar.style.width = "0%"; }, 1000);
-                
-                // Refresh Mori's brain
                 await refreshChatSession(conversationHistory);
-                addMessageToUI("System", `Resource "${file.name}" processed.`, "ai");
-
+                addMessageToUI("System", `I've read "${file.name}". I'll keep it in mind.`, "ai");
             } catch(err) {
                 console.error(err);
                 alert("Upload Failed: " + err.message);
@@ -481,7 +447,6 @@
         reader.readAsText(file);
     };
 
-    // --- FIREBASE LISTENER ---
     onValue(resourcesRef, (snapshot) => {
         const list = document.getElementById('resource-list');
         list.innerHTML = "";
@@ -498,7 +463,7 @@
                 list.appendChild(div);
             });
         } else {
-            list.innerHTML = "Database Empty.";
+            list.innerHTML = "No books loaded. My mind is blank.";
         }
     });
 
@@ -509,7 +474,6 @@
         }
     };
 
-    // --- CHAT LOGIC ---
     window.handleEnter = (e) => {
         if(e.key === 'Enter') window.sendMessage();
     };
@@ -527,8 +491,6 @@
             const result = await chatSession.sendMessage(text);
             const response = result.response.text();
             addMessageToUI("Mori Ackerman", response, "ai");
-            
-            // Update local history tracking
             conversationHistory.push({role: "user", parts: [{text: text}]});
             conversationHistory.push({role: "model", parts: [{text: response}]});
         } catch(e) {
@@ -541,15 +503,10 @@
         const msg = document.createElement('div');
         msg.className = `message ${type}`;
         
-        // 1. FORMATTING
         let formatted = text.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>').replace(/\n/g, '<br>');
-        
-        // 2. RTL DETECTION
-        // Regex looks for Persian/Arabic character range
         const isPersian = /[\u0600-\u06FF]/.test(text);
         const contentClass = isPersian ? 'rtl-content' : 'ltr-content';
 
-        // 3. ACTION BUTTONS (AI ONLY)
         const actions = type === 'ai' ? `
             <div class="action-row">
                 <button class="mini-btn" onclick="utilCopy(this)">COPY</button>
@@ -567,7 +524,6 @@
         box.scrollTop = box.scrollHeight;
     }
 
-    // --- UTILS ---
     window.utilCopy = (btn) => {
         const raw = decodeURIComponent(btn.parentElement.querySelector('.raw-text').innerText);
         navigator.clipboard.writeText(raw);
@@ -581,8 +537,8 @@
         const isPersian = /[\u0600-\u06FF]/.test(raw);
         
         const prompt = isPersian 
-            ? `(As a professional translator, translate from Persian to simple English):\n${raw}`
-            : `(As a professional translator, translate from English to simple Persian):\n${raw}`;
+            ? `(Translate this Persian text to simple, conversational English. Keep the tone sharp.):\n${raw}`
+            : `(Translate this English text to simple, conversational Persian. Keep the tone sharp.):\n${raw}`;
 
         const tModel = genAI.getGenerativeModel({ model: "gemini-2.5-flash"});
         const res = await tModel.generateContent(prompt);
@@ -606,17 +562,14 @@
             try {
                 const hist = JSON.parse(e.target.result);
                 await refreshChatSession(hist);
-                
-                // Clear UI to avoid clutter, just show confirmation
                 document.getElementById('chat-history').innerHTML = "";
-                addMessageToUI("System", "Memory Imported. Mori remembers everything.", "ai");
+                addMessageToUI("System", "Memory Imported. Mori remembers your past mistakes.", "ai");
             } catch(err) {
                 alert("Invalid JSON");
             }
         };
         reader.readAsText(file);
     };
-
 </script>
 </body>
 </html>
